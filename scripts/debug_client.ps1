@@ -208,8 +208,8 @@ function Inject-FullDeflection {
 }
 
 function Inject-SwitchOn {
-    # CH5 at state-1 value — this is the "feed ON" switch state
-    Write-Host "  Injecting Switch A ON position (feed pass-through)..." -ForegroundColor Yellow
+    # CH5 at state-1 value (43648) — Switch A UP = feed ON
+    Write-Host "  Injecting Switch A state-1 (feed ON)..." -ForegroundColor Yellow
     Inject-Channels @{
         "1" = $DX6["CH1_THROTTLE_MIN"]
         "2" = $DX6["CH2_ROLL_CENTER"]
@@ -221,8 +221,8 @@ function Inject-SwitchOn {
 }
 
 function Inject-SwitchOff {
-    # CH5 at state-2 value — "feed OFF"
-    Write-Host "  Injecting Switch A OFF position..." -ForegroundColor Yellow
+    # CH5 at state-2 value (21888) — Switch A DOWN = feed OFF
+    Write-Host "  Injecting Switch A state-2 (feed OFF)..." -ForegroundColor Yellow
     Inject-Channels @{
         "1" = $DX6["CH1_THROTTLE_MIN"]
         "2" = $DX6["CH2_ROLL_CENTER"]

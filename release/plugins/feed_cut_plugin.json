@@ -1,0 +1,6 @@
+{
+    "enabled": true,
+    "channel": 5,
+    "on_threshold": 21888,
+    "start_blocked": true
+}

@@ -1,6 +1,6 @@
 {
     "enabled": true,
-    "channel": 5,
-    "on_threshold": 32768,
+    "input_id": null,
+    "pass_state_index": 0,
     "start_blocked": true
 }
