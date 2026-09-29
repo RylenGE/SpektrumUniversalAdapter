@@ -1,0 +1,8 @@
+{
+    "schema_version": 1,
+    "name": "Blank",
+    "settings": {
+        "watchdog_ms": 150
+    },
+    "inputs": []
+}

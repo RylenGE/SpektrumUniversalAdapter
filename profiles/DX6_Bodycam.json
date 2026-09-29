@@ -1,0 +1,171 @@
+{
+    "schema_version": 1,
+    "name": "DX6 Bodycam",
+    "settings": {
+        "watchdog_ms": 150
+    },
+    "inputs": [
+        {
+            "id": "input_311572de75",
+            "name": "Throttle",
+            "type": "range",
+            "enabled": true,
+            "source": {
+                "channel": 1
+            },
+            "calibration": {
+                "minimum": 10944,
+                "maximum": 54592
+            },
+            "transform": {
+                "invert": false,
+                "expo": 0.0,
+                "sensitivity": 1.0
+            },
+            "options": {
+                "safe_min": true
+            },
+            "output": {
+                "type": "axis",
+                "target": "left_y"
+            }
+        },
+        {
+            "id": "input_7b18e243f6",
+            "name": "Pitch",
+            "type": "range",
+            "enabled": true,
+            "source": {
+                "channel": 3
+            },
+            "calibration": {
+                "minimum": 10976,
+                "maximum": 54560
+            },
+            "transform": {
+                "invert": false,
+                "expo": 0.0,
+                "sensitivity": 1.0
+            },
+            "options": {
+                "safe_min": false
+            },
+            "output": {
+                "type": "axis",
+                "target": "right_y"
+            }
+        },
+        {
+            "id": "input_8da7fba135",
+            "name": "Yaw",
+            "type": "range",
+            "enabled": true,
+            "source": {
+                "channel": 4
+            },
+            "calibration": {
+                "minimum": 54560,
+                "maximum": 10976
+            },
+            "transform": {
+                "invert": false,
+                "expo": 0.0,
+                "sensitivity": 1.0
+            },
+            "options": {
+                "safe_min": false
+            },
+            "output": {
+                "type": "axis",
+                "target": "left_x"
+            }
+        },
+        {
+            "id": "input_a0e800b2a1",
+            "name": "Roll",
+            "type": "range",
+            "enabled": true,
+            "source": {
+                "channel": 2
+            },
+            "calibration": {
+                "minimum": 54560,
+                "maximum": 10976
+            },
+            "transform": {
+                "invert": false,
+                "expo": 0.0,
+                "sensitivity": 1.0
+            },
+            "options": {
+                "safe_min": false
+            },
+            "output": {
+                "type": "axis",
+                "target": "right_x"
+            }
+        },
+        {
+            "id": "input_2233f65091",
+            "name": "A",
+            "type": "multi_state",
+            "enabled": true,
+            "source": {
+                "channel": 5
+            },
+            "states": [
+                {
+                    "label": "State 1",
+                    "value": 43648,
+                    "output": {
+                        "type": "none",
+                        "target": null
+                    }
+                },
+                {
+                    "label": "State 2",
+                    "value": 21888,
+                    "output": {
+                        "type": "none",
+                        "target": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": "input_0a88eb7f9b",
+            "name": "B",
+            "type": "multi_state",
+            "enabled": true,
+            "source": {
+                "channel": 6
+            },
+            "states": [
+                {
+                    "label": "State 1",
+                    "value": 17728,
+                    "output": {
+                        "type": "button",
+                        "target": "dpad_up"
+                    }
+                },
+                {
+                    "label": "State 2",
+                    "value": 32768,
+                    "output": {
+                        "type": "none",
+                        "target": null
+                    }
+                },
+                {
+                    "label": "State 3",
+                    "value": 54592,
+                    "output": {
+                        "type": "button",
+                        "target": "left_shoulder"
+                    }
+                }
+            ]
+        }
+    ]
+}

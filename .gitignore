@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+dist/
+build/
+*.egg-info/
+.env
+.venv/
+env/
+
+# PyInstaller
+release/build/
+release/dist/
+release/bin/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# Arduino build artifacts
+*.hex
+*.elf
+
+# local session files
+C:\Users\Rylen\.copilot\session-state\
