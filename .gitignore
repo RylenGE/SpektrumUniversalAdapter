@@ -30,3 +30,9 @@ Thumbs.db
 
 # local session files
 C:\Users\Rylen\.copilot\session-state\
+
+# Debug scratch files
+_plugin_debug.txt
+_tick_trace*.json
+_eval_trace.json
+_tick_trace_err.txt
