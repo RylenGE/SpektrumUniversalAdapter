@@ -52,16 +52,20 @@ class AdapterCore:
         This is intended for testing and debugging only.
         """
         now = time.monotonic()
+        int_channels = {int(k): int(v) for k, v in (channels or {}).items()}
         snapshot = {
             "time": now,
-            "channels": {int(k): int(v) for k, v in (channels or {}).items()},
+            "channels": int_channels,
         }
         with self._lock:
             self._injected_snapshot = snapshot
-            self._debug_log.append((now, "injected_set", snapshot["channels"]))
-            # keep log small
+            self._debug_log.append((now, "injected_set", int_channels))
             if len(self._debug_log) > 200:
                 self._debug_log.pop(0)
+
+        # Fire channels.changed so plugins (e.g. feed_cut_plugin) react to
+        # injected data exactly as they would to live receiver data.
+        self.events.emit("channels.changed", channels=int_channels)
 
     def clear_injected_channels(self):
         with self._lock:
@@ -213,7 +217,10 @@ class AdapterCore:
         return normalized
 
     def _evaluate_external_frame(self, channels):
-        merged = empty_frame()
+        # Start sparse — only axes/triggers explicitly set by sources will be merged
+        # into the profile frame. Starting with empty_frame() would zero out every
+        # axis that no external source touches, overwriting profile output.
+        merged = {"axes": {}, "triggers": {}, "buttons": set()}
 
         with self._lock:
             static_frames = list(self._external_static_frames.values())
@@ -246,27 +253,31 @@ class AdapterCore:
         return merged
 
     def tick(self):
-        receiver = self.receiver
-        if receiver is None or not receiver.is_alive():
-            self._engage_watchdog()
-            return
+        # Injected snapshot takes priority over the live receiver so tests work
+        # without hardware connected.  Refresh its timestamp every tick so the
+        # watchdog never expires while injection is active.
+        with self._lock:
+            injected = self._injected_snapshot
 
-        # Allow an injected snapshot for testing. If present, use it instead of live receiver.
-        if self._injected_snapshot is not None:
-            snapshot = self._injected_snapshot
+        if injected is not None:
+            injected["time"] = time.monotonic()
+            snapshot = injected
         else:
+            receiver = self.receiver
+            if receiver is None or not receiver.is_alive():
+                self._engage_watchdog()
+                return
+
             snapshot = receiver.snapshot()
+            if snapshot is None:
+                self._engage_watchdog()
+                return
 
-        if snapshot is None:
-            self._engage_watchdog()
-            return
-
-        watchdog_ms = float(self.profiles.get().get("settings", {}).get("watchdog_ms", 150))
-        age_ms = (time.monotonic() - snapshot["time"]) * 1000.0
-
-        if age_ms > watchdog_ms:
-            self._engage_watchdog()
-            return
+            watchdog_ms = float(self.profiles.get().get("settings", {}).get("watchdog_ms", 150))
+            age_ms = (time.monotonic() - snapshot["time"]) * 1000.0
+            if age_ms > watchdog_ms:
+                self._engage_watchdog()
+                return
 
         self._watchdog_engaged = False
         profile = self.profiles.get()

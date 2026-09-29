@@ -94,6 +94,22 @@ class LocalAPIServer:
                     self._json(200, api.get_external_frames())
                 elif path == "/api/v1/test/injected-channels":
                     self._json(200, {"injected": api.get_injected_channels()})
+                elif path == "/api/v1/test/eval":
+                    # Directly evaluate the current profile against the injected channels
+                    # (or against channels from the request body if provided).
+                    # Returns the frame without waiting for the next tick().
+                    from .input_engine import empty_frame as _ef, merge_frame as _mf
+                    ch = api.get_injected_channels() or {}
+                    profile = api.get_profile()
+                    frame = api.core.input_engine.evaluate(profile, ch)
+                    self._json(200, {
+                        "channels": ch,
+                        "frame": {
+                            "axes": dict(frame.get("axes", {})),
+                            "triggers": dict(frame.get("triggers", {})),
+                            "buttons": sorted(frame.get("buttons", set())),
+                        },
+                    })
                 elif path == "/api/v1/debug":
                     self._json(200, {
                         "state": api.get_state(),

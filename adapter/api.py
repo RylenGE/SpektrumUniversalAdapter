@@ -99,7 +99,15 @@ class AdapterAPI:
         return self.core.get_injected_channels()
 
     def get_last_frame(self):
-        return self.core._last_frame
+        """Return the last evaluated virtual controller frame as a JSON-safe dict."""
+        frame = self.core._last_frame
+        if frame is None:
+            return None
+        return {
+            "axes": dict(frame.get("axes", {})),
+            "triggers": dict(frame.get("triggers", {})),
+            "buttons": sorted(frame.get("buttons", set())),
+        }
 
     def get_debug_log(self, limit=100):
         return self.core.get_debug_log(limit=limit)
