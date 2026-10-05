@@ -87,15 +87,22 @@ class SnapshotWizard(tk.Toplevel):
         self.record_btn.config(text="Record", state="normal")
 
     def record(self):
-        if not self.app.core.receiver:
-            messagebox.showerror("Calibration", "Receiver is not connected.", parent=self)
+        has_receiver = bool(self.app.core.receiver and self.app.core.receiver.is_alive())
+        has_injection = self.app.core.get_injected_channels() is not None
+        if not has_receiver and not has_injection:
+            messagebox.showerror(
+                "Calibration",
+                "No signal source is active.\n\n"
+                "Connect the Arduino receiver  OR  start USB Input from the USB Input tab.",
+                parent=self,
+            )
             return
 
         self.record_btn.config(text="Sampling…", state="disabled")
         started = time.monotonic()
 
         def finish():
-            history = self.app.core.receiver.history_since(started)
+            history = self.app.core.channel_history_since(started)
             if len(history) < 5:
                 self.result.config(text="Not enough packets. Try again.")
                 self.record_btn.config(text="Record", state="normal")

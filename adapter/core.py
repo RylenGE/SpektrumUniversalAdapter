@@ -45,6 +45,10 @@ class AdapterCore:
         self._injected_snapshot = None
         # A simple log of recent debug events (keeps small)
         self._debug_log = []
+        # Channel history: populated from both USB injection and live receiver.
+        # Used by the calibration wizard when no SRXL2 receiver is connected.
+        self._channel_history = []
+        self._channel_history_lock = threading.RLock()
 
     # --- Injected channels API ---
     def set_injected_channels(self, channels):
@@ -63,6 +67,12 @@ class AdapterCore:
             if len(self._debug_log) > 200:
                 self._debug_log.pop(0)
 
+        # Keep a rolling history so the calibration wizard can sample USB data.
+        with self._channel_history_lock:
+            self._channel_history.append({"time": now, "channels": dict(int_channels)})
+            if len(self._channel_history) > 500:
+                self._channel_history.pop(0)
+
         # Fire channels.changed so plugins (e.g. feed_cut_plugin) react to
         # injected data exactly as they would to live receiver data.
         self.events.emit("channels.changed", channels=int_channels)
@@ -75,6 +85,16 @@ class AdapterCore:
     def get_injected_channels(self):
         with self._lock:
             return dict(self._injected_snapshot["channels"]) if self._injected_snapshot else None
+
+    def channel_history_since(self, t):
+        """Return [{time, channels}] entries captured since monotonic time t.
+        Works for both USB injection and (if receiver is live) SRXL2 data.
+        """
+        # Prefer live receiver history when connected.
+        if self.receiver and self.receiver.is_alive():
+            return self.receiver.history_since(t)
+        with self._channel_history_lock:
+            return [e for e in self._channel_history if e["time"] >= t]
 
     def get_debug_log(self, limit=100):
         with self._lock:
@@ -353,6 +373,12 @@ class AdapterCore:
         }
 
     def channels(self):
+        # When USB injection is active, expose those channels so the live
+        # display, calibration wizard, and API all see the USB joystick data.
+        with self._lock:
+            injected = self._injected_snapshot
+        if injected is not None:
+            return dict(injected["channels"])
         if not self.receiver:
             return {}
         return self.receiver.channels()
