@@ -11,11 +11,11 @@
             "type": "range",
             "enabled": true,
             "source": {
-                "channel": 1
+                "channel": 3
             },
             "calibration": {
                 "minimum": 10944,
-                "maximum": 54592
+                "maximum": 54506
             },
             "transform": {
                 "invert": false,
@@ -36,11 +36,11 @@
             "type": "range",
             "enabled": true,
             "source": {
-                "channel": 3
+                "channel": 2
             },
             "calibration": {
-                "minimum": 10976,
-                "maximum": 54560
+                "minimum": 10944,
+                "maximum": 54591
             },
             "transform": {
                 "invert": false,
@@ -64,8 +64,8 @@
                 "channel": 4
             },
             "calibration": {
-                "minimum": 54560,
-                "maximum": 10976
+                "minimum": 10944,
+                "maximum": 54591
             },
             "transform": {
                 "invert": false,
@@ -86,11 +86,11 @@
             "type": "range",
             "enabled": true,
             "source": {
-                "channel": 2
+                "channel": 1
             },
             "calibration": {
-                "minimum": 54560,
-                "maximum": 10976
+                "minimum": 11029,
+                "maximum": 54591
             },
             "transform": {
                 "invert": false,
@@ -111,12 +111,12 @@
             "type": "multi_state",
             "enabled": true,
             "source": {
-                "channel": 5
+                "channel": 6
             },
             "states": [
                 {
                     "label": "State 1",
-                    "value": 43648,
+                    "value": 10944,
                     "output": {
                         "type": "none",
                         "target": null
@@ -124,7 +124,7 @@
                 },
                 {
                     "label": "State 2",
-                    "value": 21888,
+                    "value": 32768,
                     "output": {
                         "type": "none",
                         "target": null
@@ -138,12 +138,12 @@
             "type": "multi_state",
             "enabled": true,
             "source": {
-                "channel": 6
+                "channel": 5
             },
             "states": [
                 {
                     "label": "State 1",
-                    "value": 17728,
+                    "value": 10944,
                     "output": {
                         "type": "button",
                         "target": "dpad_up"
@@ -159,7 +159,7 @@
                 },
                 {
                     "label": "State 3",
-                    "value": 54592,
+                    "value": 54591,
                     "output": {
                         "type": "button",
                         "target": "left_shoulder"

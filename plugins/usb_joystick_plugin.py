@@ -80,7 +80,7 @@ def _init_pygame():
 
 
 def list_devices():
-    """{index, name, axes} for every detected joystick."""
+    """{index, name, axes, buttons} for every detected joystick."""
     pg, _ = _init_pygame()
     if pg is None:
         return []
@@ -91,7 +91,12 @@ def list_devices():
         for i in range(pg.joystick.get_count()):
             j = pg.joystick.Joystick(i)
             j.init()
-            out.append({"index": i, "name": j.get_name(), "axes": j.get_numaxes()})
+            out.append({
+                "index":   i,
+                "name":    j.get_name(),
+                "axes":    j.get_numaxes(),
+                "buttons": j.get_numbuttons(),
+            })
             j.quit()
         return out
     except Exception:
@@ -106,7 +111,9 @@ def _is_running():
 
 def _poll_loop(api, joystick, stop_event, poll_hz):
     import pygame
-    interval = 1.0 / max(1, poll_hz)
+    interval  = 1.0 / max(1, poll_hz)
+    n_axes    = joystick.get_numaxes()
+    n_buttons = joystick.get_numbuttons()
     try:
         while not stop_event.is_set():
             t0 = time.monotonic()
@@ -116,10 +123,18 @@ def _poll_loop(api, joystick, stop_event, poll_hz):
                 pass
 
             channels = {}
-            for i in range(joystick.get_numaxes()):
+
+            # Axes → CH1, CH2, …  (-1.0…+1.0 → 10944…54592)
+            for i in range(n_axes):
                 val = joystick.get_axis(i)
-                raw = max(0, min(65535, int(_CENTER + val * _HALF)))
-                channels[i + 1] = raw     # axis 0 -> CH1, axis 1 -> CH2, ...
+                channels[i + 1] = max(0, min(65535, int(_CENTER + val * _HALF)))
+
+            # Buttons → CH(n_axes+1), CH(n_axes+2), …
+            # Pressed = max raw (54592), released = min raw (10944)
+            # This mirrors a two-position switch so calibration works normally.
+            for i in range(n_buttons):
+                ch  = n_axes + i + 1
+                channels[ch] = (_CENTER + _HALF) if joystick.get_button(i) else (_CENTER - _HALF)
 
             if channels:
                 api.set_injected_channels(channels)
@@ -177,7 +192,7 @@ def start(api):
         name="usb_joy_poll",
     )
     _poll_thread.start()
-    return True, f"Running -- {name}  ({match['axes']} axes -> CH1-CH{match['axes']})"
+    return True, f"Running -- {name}  ({match['axes']} axes + {match['buttons']} buttons = {match['axes'] + match['buttons']} channels)"
 
 
 def stop():
@@ -247,7 +262,15 @@ def setup(api):
 
             def _update_info(*_):
                 m = next((d for d in _devs if d["name"] == device_var.get()), None)
-                info_var.set(f"{m['axes']} axes -> CH1-CH{m['axes']}" if m else "")
+                if m:
+                    total = m["axes"] + m["buttons"]
+                    info_var.set(
+                        f"{m['axes']} axes (CH1-CH{m['axes']})  +  "
+                        f"{m['buttons']} buttons (CH{m['axes']+1}-CH{total})  "
+                        f"= {total} channels total"
+                    )
+                else:
+                    info_var.set("")
 
             combo.bind("<<ComboboxSelected>>", _update_info)
             ttk.Button(pick, text="Refresh", command=_refresh).grid(

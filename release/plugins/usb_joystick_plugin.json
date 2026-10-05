@@ -1,1 +1,4 @@
-﻿{"device_name": null, "poll_rate_hz": 60}
+{
+    "device_name": "TX15 Joystick",
+    "poll_rate_hz": 60
+}
