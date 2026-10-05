@@ -18,6 +18,7 @@ py -m PyInstaller ^
   --windowed ^
   --name "Spektrum Universal Adapter" ^
   --collect-all vgamepad ^
+  --collect-all pygame ^
   --hidden-import serial.tools.list_ports_windows ^
   "universal_adapter.py"
 

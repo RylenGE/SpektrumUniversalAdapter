@@ -1070,8 +1070,15 @@ class UniversalUI:
         )
 
     def _run_calibration(self, type_id, name, state_count, existing):
-        if not self.core.receiver or self.core.receiver.snapshot() is None:
-            messagebox.showerror("Calibration", "Connect the receiver and wait for channel data first.")
+        has_receiver  = bool(self.core.receiver and self.core.receiver.is_alive()
+                             and self.core.receiver.snapshot() is not None)
+        has_injection = self.core.get_injected_channels() is not None
+        if not has_receiver and not has_injection:
+            messagebox.showerror(
+                "Calibration",
+                "No signal source is active.\n\n"
+                "Connect the Arduino receiver  OR  start USB Input from the USB Input tab.",
+            )
             return
 
         custom = self.core.input_types.get(type_id)
