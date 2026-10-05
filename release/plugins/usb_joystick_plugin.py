@@ -99,9 +99,9 @@ def _save_config():
 def _try_import_pygame():
     try:
         import pygame  # noqa: F401
-        return True, None
-    except Exception as e:
-        return False, str(e)
+        return True
+    except ImportError:
+        return False
 
 
 def _pygame_init():
@@ -119,8 +119,7 @@ def _pygame_init():
 
 def list_joystick_devices():
     """Return a list of {index, name, axes} dicts for every detected joystick."""
-    ok, err = _try_import_pygame()
-    if not ok:
+    if not _try_import_pygame():
         return []
     try:
         import pygame
@@ -210,11 +209,11 @@ def start_usb_source(api):
     if _is_running():
         return True, "Already running"
 
-    ok, err = _try_import_pygame()
-    if not ok:
+    if not _try_import_pygame():
         return False, (
-            f"pygame import failed: {err}\n"
-            "Run: pip install pygame"
+            "pygame not installed.\n"
+            "Run: pip install pygame\n"
+            "or add it to requirements.txt and run install_dependencies.bat"
         )
 
     target = _config.get("device_name")
@@ -314,12 +313,8 @@ def setup(api):
 
             def _refresh_devices():
                 nonlocal _devices
-                ok, err = _try_import_pygame()
-                if not ok:
-                    messagebox.showwarning(
-                        "USB Joystick",
-                        f"pygame import failed: {err}\nRun: pip install pygame",
-                    )
+                if not _try_import_pygame():
+                    messagebox.showwarning("USB Joystick", "pygame not installed.\nRun: pip install pygame")
                     return
                 _devices = list_joystick_devices()
                 names = [d["name"] for d in _devices]
